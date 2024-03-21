@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMT Calculator</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/darkly/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    .container {
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>CMT Calculator</h2>
+    <div class="row">
+      <div class="col-md-3">
+        <input type="tel" class="form-control" id="width" placeholder="Width" step="any" required>
+      </div>
+      <div class="col-md-3">
+        <input type="tel" class="form-control" id="thick" placeholder="Thick" step="any" required>
+      </div>
+      <div class="col-md-3">
+        <input type="tel" class="form-control" id="length" placeholder="Length" step="any" required>
+      </div>
+      <div class="col-md-3">
+        <input type="tel" class="form-control" id="quantity" placeholder="Quantity" required>
+      </div>
+    </div>
+    <br>
+    <button type="button" class="btn btn-primary" onclick="addRow()">Add to Table</button>
+    <button type="button" class="btn btn-danger" onclick="clearData()">Clear</button>
+    <br><br>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Width</th>
+          <th>Thick</th>
+          <th>Length</th>
+          <th>Qty</th>
+          <th>Cuft</th>
+          <th>Cumt</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="dataTable">
+      </tbody>
+    </table>
+    <div>
+      <b>Total Cuft:</b> <span id="totalCuft">0</span><br>
+      <b>Total Cumt:</b> <span id="totalCumt">0</span><br>
+      <b>Total Quantity:</b> <span id="totalQuantity">0</span><br>
+    </div>
+  </div>
+
+  <script>
+    function addRow() {
+      var width = parseFloat(document.getElementById("width").value);
+      var thick = parseFloat(document.getElementById("thick").value);
+      var length = parseFloat(document.getElementById("length").value);
+      var quantity = parseInt(document.getElementById("quantity").value);
+
+      if (!width || !thick || !length || !quantity) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      var cuft = (width / 12) * (thick / 12) * length * quantity;
+      var cumt = (width * 0.0254) * (thick * 0.0254) * (length * 0.3048) * quantity;
+
+      var table = document.getElementById("dataTable");
+      var row = table.insertRow(-1);
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+      var cell4 = row.insertCell(3);
+      var cell5 = row.insertCell(4);
+      var cell6 = row.insertCell(5);
+      var cell7 = row.insertCell(6);
+
+      cell1.innerHTML = width;
+      cell2.innerHTML = thick;
+      cell3.innerHTML = length;
+      cell4.innerHTML = quantity;
+      cell5.innerHTML = cuft.toFixed(5); // 5 decimals
+      cell6.innerHTML = cumt.toFixed(5); // 5 decimals
+      cell7.innerHTML = '<button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>';
+
+      updateTotals();
+      clearData();
+    }
+
+    function deleteRow(btn) {
+      var row = btn.parentNode.parentNode;
+      row.parentNode.removeChild(row);
+      updateTotals();
+    }
+
+    function updateTotals() {
+      var totalCuft = 0;
+      var totalCumt = 0;
+      var totalQuantity = 0;
+
+      $("#dataTable tr").each(function () {
+        totalCuft += parseFloat($(this).find("td:eq(4)").text());
+        totalCumt += parseFloat($(this).find("td:eq(5)").text());
+        totalQuantity += parseInt($(this).find("td:eq(3)").text());
+      });
+
+      $("#totalCuft").text(totalCuft.toFixed(5)); // 5 decimals
+      $("#totalCumt").text(totalCumt.toFixed(5)); // 5 decimals
+      $("#totalQuantity").text(totalQuantity);
+    }
+
+    function clearData() {
+      $("#width").val("");
+      $("#thick").val("");
+      $("#length").val("");
+      $("#quantity").val("");
+      $("#width").focus();
+    }
+
+    // Automatically switch focus to next input on Enter
+    $('input').keypress(function (e) {
+      if (e.which == 13) {
+        e.preventDefault();
+        var inputs = $(this).closest('.row').find(':input:visible');
+        var idx = inputs.index(this);
+        if (idx == inputs.length - 1) {
+          addRow();
+          inputs.first().focus();
+        } else {
+          inputs.eq(idx + 1).focus();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
